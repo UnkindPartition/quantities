@@ -32,7 +32,11 @@ type EQuant = Either (QuantityError Double) (Quantity Double)
 -- expressions like "exp1 => exp2" in the middle, which converts the quantity
 -- exp1 into the units of the quantity exp2.
 parseExpr :: Definitions -> Parser EQuant
-parseExpr d = (try (parseConvertExpr d) <|> parseSingle) <* eof
+parseExpr d = parseSubExpr d <* eof
+
+-- | Like 'parseExpr', but can be used as part of a larger parser.
+parseSubExpr :: Definitions -> Parser EQuant
+parseSubExpr d = (try (parseConvertExpr d) <|> parseSingle)
   where parseSingle = spaces >> parseExpr' d <* spaces
 
 -- | Parser that accepts "=>" in between two expressions.
